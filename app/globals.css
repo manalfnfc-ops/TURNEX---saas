@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap");
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(200, 155, 60, 0.10), transparent 55%),
+    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(166, 61, 47, 0.08), transparent 50%),
+    #14110f;
+}
+
+::selection {
+  background: #c89b3c;
+  color: #14110f;
+}
+
+/* ---------- Componentes generales ---------- */
+
+.card {
+  background: #1c1712;
+  border: 1px solid #2b241c;
+  border-radius: 10px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #e4c77a, #c89b3c);
+  color: #14110f;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  border-radius: 8px;
+  padding: 0.65rem 1.25rem;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  opacity: 0.94;
+}
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-ghost {
+  border: 1px solid #2b241c;
+  border-radius: 8px;
+  padding: 0.6rem 1.1rem;
+  color: #ece4d6;
+  transition: border-color 0.12s ease;
+}
+.btn-ghost:hover {
+  border-color: #c89b3c;
+}
+
+.input {
+  background: #14110f;
+  border: 1px solid #2b241c;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  color: #f5efe4;
+  width: 100%;
+  font-family: "Inter", sans-serif;
+}
+.input:focus {
+  outline: 2px solid #c89b3c;
+  outline-offset: 1px;
+}
+
+.slot-btn {
+  border: 1px solid #2b241c;
+  border-radius: 8px;
+  padding: 0.5rem 0.4rem;
+  text-align: center;
+  font-size: 0.85rem;
+  font-family: "Space Mono", monospace;
+  transition: all 0.12s ease;
+}
+.slot-btn:hover:not(:disabled) {
+  border-color: #c89b3c;
+  background: rgba(200, 155, 60, 0.08);
+}
+.slot-btn.selected {
+  background: #c89b3c;
+  color: #14110f;
+  border-color: #c89b3c;
+  font-weight: 700;
+}
+.slot-btn:disabled {
+  opacity: 0.22;
+  cursor: not-allowed;
+}
+
+.eyebrow {
+  font-family: "Space Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #c89b3c;
+}
+
+/* ---------- El ticket digital (elemento firma) ---------- */
+/* Comprobante físico: papel color hueso, muescas troqueladas a los
+   lados, línea de perforación, sello de tinta rotado. */
+
+.ticket-wrap {
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.55));
+}
+
+.ticket {
+  position: relative;
+  background: #f5efe4;
+  color: #241d16;
+  border-radius: 6px;
+  overflow: visible;
+}
+
+.ticket-notch {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  background: #14110f;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.ticket-notch.left {
+  left: -13px;
+}
+.ticket-notch.right {
+  right: -13px;
+}
+
+.ticket-perforation {
+  position: relative;
+  height: 0;
+  border-top: 2px dashed #d8c9a9;
+  margin: 0 -1.5rem;
+}
+.ticket-perforation .ticket-notch {
+  top: 0;
+}
+
+.stamp {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  border: 3px solid #a63d2f;
+  color: #a63d2f;
+  transform: rotate(-9deg);
+  font-family: "Space Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  line-height: 1.15;
+  opacity: 0.88;
+  mix-blend-mode: multiply;
+}
+.stamp .stamp-big {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.ticket-code {
+  font-family: "Space Mono", monospace;
+  letter-spacing: 0.08em;
+}
