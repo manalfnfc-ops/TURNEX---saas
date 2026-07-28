@@ -5,7 +5,7 @@ import { generateDaySlots, type BusinessHour, type BusySlot } from "@/lib/availa
 
 type Service = { id: string; name: string; description: string | null; price: number; duration_minutes: number };
 type Worker = { id: string; name: string };
-type Business = { id: string; name: string; niche: string | null; description: string | null; address: string | null; timezone: string };
+type Business = { id: string; name: string; niche: string | null; description: string | null; address: string | null; phone: string | null; timezone: string };
 
 export default function BookingFlow({
   business,
@@ -99,10 +99,10 @@ export default function BookingFlow({
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-10">
+    <main className={`mx-auto px-4 py-10 transition-all ${step === 3 ? "max-w-3xl" : "max-w-2xl"}`}>
       <header className="mb-8">
         <p className="eyebrow">{business.niche || "Agenda de citas"}</p>
-        <h1 className="font-display text-3xl md:text-4xl font-semibold mt-1 text-paper">{business.name}</h1>
+        <h1 className="font-display text-3xl md:text-4xl font-semibold mt-1 text-white">{business.name}</h1>
         {business.description && <p className="text-muted mt-2 text-sm">{business.description}</p>}
       </header>
 
@@ -147,41 +147,72 @@ export default function BookingFlow({
       )}
 
       {step === 3 && service && (
-        <section className="space-y-4 mt-6">
+        <section className="space-y-5 mt-6">
           <h2 className="font-display text-lg font-semibold">Elige día y hora</h2>
-          <input
-            type="date"
-            className="input max-w-[200px]"
-            value={dateStr}
-            min={new Date().toISOString().slice(0, 10)}
-            onChange={(e) => {
-              setDateStr(e.target.value);
-              setSelectedSlot(null);
-              loadSlots(e.target.value, service);
-            }}
-          />
 
-          {loadingSlots && <p className="text-muted text-sm">Cargando horarios disponibles…</p>}
-          {error && <p className="text-danger text-sm">{error}</p>}
+          <div className="card p-4 md:p-6">
+            {/* Tira de próximos días — atajo visual, misma lógica de disponibilidad de siempre */}
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+              {nextDays(14).map((d) => {
+                const isSelected = d.iso === dateStr;
+                return (
+                  <button
+                    key={d.iso}
+                    onClick={() => {
+                      setDateStr(d.iso);
+                      setSelectedSlot(null);
+                      loadSlots(d.iso, service);
+                    }}
+                    className={`flex flex-col items-center min-w-[56px] py-2.5 rounded-xl border transition ${
+                      isSelected
+                        ? "bg-gradient-to-b from-accent to-accent2 border-transparent text-white shadow-glow"
+                        : "border-line hover:border-accent/50"
+                    }`}
+                  >
+                    <span className="text-[0.65rem] uppercase text-muted font-mono">{d.dayLabel}</span>
+                    <span className="font-display text-lg font-semibold">{d.dayNum}</span>
+                  </button>
+                );
+              })}
+            </div>
 
-          {!loadingSlots && slots.length === 0 && !error && (
-            <p className="text-muted text-sm">No hay horarios disponibles este día. Prueba otra fecha.</p>
-          )}
+            <div className="flex justify-end mt-3">
+              <input
+                type="date"
+                className="input w-auto text-sm"
+                value={dateStr}
+                min={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => {
+                  setDateStr(e.target.value);
+                  setSelectedSlot(null);
+                  loadSlots(e.target.value, service);
+                }}
+              />
+            </div>
 
-          <div className="grid grid-cols-4 gap-2">
-            {slots.map((s) => {
-              const label = new Date(s.time).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", hour12: true });
-              return (
-                <button
-                  key={s.time}
-                  disabled={!s.available}
-                  onClick={() => setSelectedSlot(s.time)}
-                  className={`slot-btn ${selectedSlot === s.time ? "selected" : ""}`}
-                >
-                  {label}
-                </button>
-              );
-            })}
+            <div className="border-t border-line my-5" />
+
+            {loadingSlots && <p className="text-muted text-sm">Cargando horarios disponibles…</p>}
+            {error && <p className="text-danger text-sm">{error}</p>}
+            {!loadingSlots && slots.length === 0 && !error && (
+              <p className="text-muted text-sm">No hay horarios disponibles este día. Prueba otra fecha.</p>
+            )}
+
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+              {slots.map((s) => {
+                const label = new Date(s.time).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", hour12: true });
+                return (
+                  <button
+                    key={s.time}
+                    disabled={!s.available}
+                    onClick={() => setSelectedSlot(s.time)}
+                    className={`slot-btn ${selectedSlot === s.time ? "selected" : ""}`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="flex justify-between pt-2">
@@ -214,36 +245,52 @@ export default function BookingFlow({
 
       {step === 5 && ticket && (
         <section className="mt-10 ticket-wrap max-w-sm mx-auto">
-          <div className="ticket p-6">
-            <p className="eyebrow !text-[#8A7A55]">Comprobante de cita</p>
-            <h2 className="font-display text-2xl font-semibold mt-1">{business.name}</h2>
-            {business.address && <p className="text-sm text-[#5c5343] mt-0.5">{business.address}</p>}
+          <div className="ticket p-0 overflow-hidden">
+            <div className="ticket-brand-strip" />
+            <div className="p-6">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="eyebrow">Comprobante de cita</p>
+                  <h2 className="font-display text-2xl font-semibold mt-1 text-white">{business.name}</h2>
+                </div>
+                <span className="text-[10px] font-mono text-accentSoft tracking-widest">TURNEX</span>
+              </div>
+              <div className="text-sm text-muted mt-1 space-y-0.5">
+                {business.address && <p>{business.address}</p>}
+                {business.phone && <p>{business.phone}</p>}
+              </div>
 
-            <div className="ticket-perforation my-5">
-              <div className="ticket-notch left" />
-              <div className="ticket-notch right" />
-            </div>
+              <div className="ticket-perforation my-5">
+                <div className="ticket-notch left" />
+                <div className="ticket-notch right" />
+              </div>
 
-            <div className="flex justify-between text-sm">
-              <span className="text-[#5c5343]">Servicio</span>
-              <span className="font-medium">{service?.name}</span>
-            </div>
-            <div className="flex justify-between text-sm mt-1.5">
-              <span className="text-[#5c5343]">Fecha</span>
-              <span className="ticket-code text-sm">
-                {new Date(ticket.starts_at).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm mt-1.5">
-              <span className="text-[#5c5343]">A nombre de</span>
-              <span className="font-medium">{form.name}</span>
-            </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted">Servicio</span>
+                <span className="font-medium">{service?.name}</span>
+              </div>
+              <div className="flex justify-between text-sm mt-1.5">
+                <span className="text-muted">Precio</span>
+                <span className="font-medium">${service?.price.toLocaleString("es-CO")}</span>
+              </div>
+              <div className="flex justify-between text-sm mt-1.5">
+                <span className="text-muted">Fecha</span>
+                <span className="ticket-code text-sm">
+                  {new Date(ticket.starts_at).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm mt-1.5">
+                <span className="text-muted">Atiende</span>
+                <span className="font-medium">{workers.find((w) => w.id === workerId)?.name ?? "Cualquiera disponible"}</span>
+              </div>
+              <div className="flex justify-between text-sm mt-1.5">
+                <span className="text-muted">A nombre de</span>
+                <span className="font-medium">{form.name}</span>
+              </div>
 
-            <div className="flex justify-between items-end mt-6">
-              <span className="ticket-code text-xs text-[#8A7A55]">N.º {ticket.id?.slice(0, 8).toUpperCase()}</span>
-              <div className="stamp">
-                <span>Cita</span>
-                <span className="stamp-big">Pendiente</span>
+              <div className="flex justify-between items-end mt-6">
+                <span className="ticket-code text-xs text-muted">N.º {ticket.id?.slice(0, 8).toUpperCase()}</span>
+                <span className="badge-verified badge-pending">Pendiente</span>
               </div>
             </div>
           </div>
@@ -256,12 +303,27 @@ export default function BookingFlow({
   );
 }
 
+function nextDays(count: number) {
+  const out = [];
+  const today = new Date();
+  for (let i = 0; i < count; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    out.push({
+      iso: d.toISOString().slice(0, 10),
+      dayLabel: d.toLocaleDateString("es-CO", { weekday: "short" }).replace(".", ""),
+      dayNum: d.getDate(),
+    });
+  }
+  return out;
+}
+
 function StepIndicator({ step }: { step: number }) {
   const labels = ["Servicio", "Profesional", "Horario", "Datos", "Listo"];
   return (
     <div className="flex gap-1 font-mono text-[0.65rem] uppercase tracking-wider text-muted">
       {labels.map((l, i) => (
-        <span key={l} className={`flex-1 pb-2 border-b-2 ${i + 1 <= step ? "border-accent text-paper" : "border-line"}`}>
+        <span key={l} className={`flex-1 pb-2 border-b-2 ${i + 1 <= step ? "border-accent text-white" : "border-line"}`}>
           {l}
         </span>
       ))}

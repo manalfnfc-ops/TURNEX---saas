@@ -5,27 +5,29 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        base: "#14110F",       // tinta oscura cálida
-        surface: "#1C1712",
-        surface2: "#241D16",
-        paper: "#F5EFE4",      // papel de ticket
-        paperDim: "#EBE1CD",
-        accent: "#C89B3C",     // latón envejecido
-        accentSoft: "#E4C77A",
-        stamp: "#A63D2F",      // tinta de sello (rojo óxido)
-        warn: "#D9A441",
-        danger: "#A63D2F",
-        ok: "#7A8C5C",         // salvia apagada
-        muted: "#9C9082",
-        line: "#2B241C",
+        base: "#07050D",        // negro con fondo violeta
+        surface: "#120B22",
+        surface2: "#1A1030",
+        accent: "#A855F7",      // morado eléctrico
+        accentSoft: "#C084FC",
+        accent2: "#6D28D9",
+        cyan: "#22D3EE",
+        warn: "#F0B429",
+        danger: "#F43F5E",
+        ok: "#34D399",
+        muted: "#9C94B8",
+        line: "#241A3D",
       },
       fontFamily: {
-        display: ["'Fraunces'", "serif"],
+        display: ["'Outfit'", "sans-serif"],
         body: ["'Inter'", "sans-serif"],
         mono: ["'Space Mono'", "monospace"],
       },
       borderRadius: {
-        card: "10px",
+        card: "16px",
+      },
+      boxShadow: {
+        glow: "0 0 40px -8px rgba(168,85,247,0.45)",
       },
     },
   },

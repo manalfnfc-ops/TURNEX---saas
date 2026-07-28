@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap");
 
 :root {
   color-scheme: dark;
@@ -10,89 +10,138 @@
 
 body {
   background:
-    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(200, 155, 60, 0.10), transparent 55%),
-    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(166, 61, 47, 0.08), transparent 50%),
-    #14110f;
+    radial-gradient(ellipse 1000px 600px at 10% -10%, rgba(168, 85, 247, 0.22), transparent 55%),
+    radial-gradient(ellipse 800px 600px at 100% 10%, rgba(34, 211, 238, 0.10), transparent 50%),
+    radial-gradient(ellipse 900px 700px at 50% 120%, rgba(109, 40, 217, 0.20), transparent 55%),
+    #07050d;
+  min-height: 100vh;
 }
 
 ::selection {
-  background: #c89b3c;
-  color: #14110f;
+  background: #a855f7;
+  color: #07050d;
 }
 
-/* ---------- Componentes generales ---------- */
+/* ---------- Glassmorphism / Liquid glass ---------- */
+
+.glass {
+  background: rgba(255, 255, 255, 0.045);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(180, 140, 255, 0.16);
+  border-radius: 16px;
+}
+
+.glass-strong {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.10), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(180, 140, 255, 0.22);
+  border-radius: 18px;
+}
 
 .card {
-  background: #1c1712;
-  border: 1px solid #2b241c;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(180, 140, 255, 0.14);
+  border-radius: 16px;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.card:hover {
+  border-color: rgba(180, 140, 255, 0.32);
 }
 
+.card-glow {
+  border-color: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 35px -12px rgba(168, 85, 247, 0.5);
+}
+
+.glow-orb {
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---------- Componentes ---------- */
+
 .btn-primary {
-  background: linear-gradient(135deg, #e4c77a, #c89b3c);
-  color: #14110f;
+  background: linear-gradient(135deg, #c084fc, #a855f7 45%, #6d28d9);
+  color: #07050d;
   font-weight: 600;
   font-family: "Inter", sans-serif;
-  border-radius: 8px;
-  padding: 0.65rem 1.25rem;
-  transition: transform 0.12s ease, opacity 0.12s ease;
+  border-radius: 10px;
+  padding: 0.65rem 1.3rem;
+  box-shadow: 0 0 30px -6px rgba(168, 85, 247, 0.55);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .btn-primary:hover {
   transform: translateY(-1px);
-  opacity: 0.94;
+  box-shadow: 0 0 40px -4px rgba(168, 85, 247, 0.75);
 }
 .btn-primary:disabled {
   opacity: 0.35;
   cursor: not-allowed;
+  box-shadow: none;
   transform: none;
 }
 
 .btn-ghost {
-  border: 1px solid #2b241c;
-  border-radius: 8px;
+  border: 1px solid rgba(180, 140, 255, 0.22);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
   padding: 0.6rem 1.1rem;
-  color: #ece4d6;
-  transition: border-color 0.12s ease;
+  color: #ece7fb;
+  transition: border-color 0.12s ease, background 0.12s ease;
 }
 .btn-ghost:hover {
-  border-color: #c89b3c;
+  border-color: #a855f7;
+  background: rgba(168, 85, 247, 0.08);
 }
 
 .input {
-  background: #14110f;
-  border: 1px solid #2b241c;
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
-  color: #f5efe4;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(180, 140, 255, 0.18);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  color: #f4f1fb;
   width: 100%;
   font-family: "Inter", sans-serif;
 }
 .input:focus {
-  outline: 2px solid #c89b3c;
+  outline: 2px solid #a855f7;
   outline-offset: 1px;
+  border-color: #a855f7;
 }
 
 .slot-btn {
-  border: 1px solid #2b241c;
-  border-radius: 8px;
-  padding: 0.5rem 0.4rem;
+  border: 1px solid rgba(180, 140, 255, 0.16);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  padding: 0.7rem 0.5rem;
   text-align: center;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-family: "Space Mono", monospace;
   transition: all 0.12s ease;
 }
 .slot-btn:hover:not(:disabled) {
-  border-color: #c89b3c;
-  background: rgba(200, 155, 60, 0.08);
+  border-color: #a855f7;
+  background: rgba(168, 85, 247, 0.10);
+  box-shadow: 0 0 20px -6px rgba(168, 85, 247, 0.5);
 }
 .slot-btn.selected {
-  background: #c89b3c;
-  color: #14110f;
-  border-color: #c89b3c;
+  background: linear-gradient(135deg, #c084fc, #a855f7);
+  color: #07050d;
+  border-color: #a855f7;
   font-weight: 700;
+  box-shadow: 0 0 25px -4px rgba(168, 85, 247, 0.7);
 }
 .slot-btn:disabled {
-  opacity: 0.22;
+  opacity: 0.2;
   cursor: not-allowed;
 }
 
@@ -101,76 +150,103 @@ body {
   font-size: 0.7rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #c89b3c;
+  background: linear-gradient(90deg, #c084fc, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-/* ---------- El ticket digital (elemento firma) ---------- */
-/* Comprobante físico: papel color hueso, muescas troqueladas a los
-   lados, línea de perforación, sello de tinta rotado. */
+.gradient-text {
+  background: linear-gradient(120deg, #f4f1fb 30%, #c084fc 70%, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Ticket digital (pase de acceso futurista) ---------- */
 
 .ticket-wrap {
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 25px 60px rgba(109, 40, 217, 0.35));
 }
 
 .ticket {
   position: relative;
-  background: #f5efe4;
-  color: #241d16;
-  border-radius: 6px;
+  background: linear-gradient(160deg, rgba(26, 16, 48, 0.92), rgba(10, 6, 20, 0.96));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(180, 140, 255, 0.28);
+  border-radius: 18px;
+  color: #f4f1fb;
   overflow: visible;
 }
 
 .ticket-notch {
   position: absolute;
-  width: 26px;
-  height: 26px;
-  background: #14110f;
+  width: 22px;
+  height: 22px;
+  background: #07050d;
+  border: 1px solid rgba(180, 140, 255, 0.28);
   border-radius: 50%;
   top: 50%;
   transform: translateY(-50%);
 }
 .ticket-notch.left {
-  left: -13px;
+  left: -12px;
 }
 .ticket-notch.right {
-  right: -13px;
+  right: -12px;
 }
 
 .ticket-perforation {
   position: relative;
   height: 0;
-  border-top: 2px dashed #d8c9a9;
-  margin: 0 -1.5rem;
+  border-top: 1.5px dashed rgba(180, 140, 255, 0.3);
+  margin: 0 -1.25rem;
 }
 .ticket-perforation .ticket-notch {
   top: 0;
 }
 
-.stamp {
+.badge-verified {
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 108px;
-  height: 108px;
-  border-radius: 50%;
-  border: 3px solid #a63d2f;
-  color: #a63d2f;
-  transform: rotate(-9deg);
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
   font-family: "Space Mono", monospace;
+  font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.7rem;
-  line-height: 1.15;
-  opacity: 0.88;
-  mix-blend-mode: multiply;
+  letter-spacing: 0.06em;
 }
-.stamp .stamp-big {
-  font-size: 0.95rem;
-  font-weight: 700;
+.badge-pending {
+  background: rgba(240, 180, 41, 0.14);
+  color: #f0b429;
+  border: 1px solid rgba(240, 180, 41, 0.35);
+}
+.badge-ok {
+  background: rgba(52, 211, 153, 0.14);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.35);
 }
 
 .ticket-code {
   font-family: "Space Mono", monospace;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
+}
+
+.ticket-brand-strip {
+  height: 6px;
+  background: linear-gradient(90deg, #c084fc, #a855f7, #22d3ee);
+}
+.day-cell {
+  border: 1px solid rgba(180, 140, 255, 0.14);
+  border-radius: 12px;
+  padding: 0.9rem 0.4rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.12s ease;
+}
+.day-cell.selected {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(34, 211, 238, 0.12));
+  border-color: #a855f7;
+  box-shadow: 0 0 25px -6px rgba(168, 85, 247, 0.6);
 }

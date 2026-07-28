@@ -29,7 +29,7 @@ export default function LoginPage() {
   return (
     <main className="max-w-sm mx-auto mt-24 px-4">
       <p className="eyebrow mb-2">MANALF</p>
-      <h1 className="font-display text-3xl font-semibold mb-1 text-paper">Turnex</h1>
+      <h1 className="font-display text-3xl font-semibold mb-1 text-white">TURNEX</h1>
       <p className="text-muted text-sm mb-8">Panel del negocio</p>
       <form onSubmit={handleLogin} className="space-y-3" autoComplete="off">
         <input className="input" type="email" placeholder="Correo" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="off" />

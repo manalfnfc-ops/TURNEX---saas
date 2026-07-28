@@ -17,7 +17,7 @@ export default async function KpisPage() {
 
   const { data: appointments } = await supabase
     .from("appointments")
-    .select("starts_at, status, services(price)")
+    .select("id, starts_at, status, client_name, client_email, client_phone, notes, services(name, price), workers(name)")
     .eq("business_id", business!.id);
 
   const list = appointments ?? [];
@@ -37,22 +37,40 @@ export default async function KpisPage() {
     .slice(0, 5);
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-4xl">
+      <p className="eyebrow mb-1">Panel de resultados</p>
       <h1 className="font-display text-2xl font-semibold mb-6">KPIs del negocio</h1>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-        <Kpi label="Citas atendidas" value={accepted.length.toString()} />
-        <Kpi label="Ingresos estimados" value={`$${totalIngresos.toLocaleString("es-CO")}`} />
-        <Kpi label="Día más agendado" value={diaTop ? diaTop[0] : "—"} />
-        <Kpi label="Total solicitudes" value={list.length.toString()} />
-        <Kpi label="Pendientes" value={list.filter((a: any) => a.status === "pending").length.toString()} />
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+        <Kpi icon="✅" label="Citas atendidas" value={accepted.length.toString()} highlight />
+        <Kpi icon="💰" label="Ingresos estimados" value={`$${totalIngresos.toLocaleString("es-CO")}`} highlight />
+        <Kpi icon="📅" label="Día más agendado" value={diaTop ? diaTop[0] : "—"} />
+        <Kpi icon="📨" label="Total solicitudes" value={list.length.toString()} />
+        <Kpi icon="⏳" label="Pendientes" value={list.filter((a: any) => a.status === "pending").length.toString()} />
       </div>
 
       <h2 className="font-display font-semibold mb-3">Próximas citas confirmadas</h2>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {proximas.length === 0 && <p className="text-muted text-sm">No hay citas confirmadas próximas.</p>}
-        {proximas.map((a: any, i: number) => (
-          <div key={i} className="card p-3 text-sm">
-            {new Date(a.starts_at).toLocaleString("es-CO")}
+        {proximas.map((a: any) => (
+          <div key={a.id} className="card p-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-ok" />
+                <span className="ticket-code text-sm text-accentSoft">
+                  {new Date(a.starts_at).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })}
+                </span>
+              </div>
+              <span className="font-medium text-sm">{a.services?.name}</span>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1 mt-3 text-sm text-muted">
+              <p><span className="text-white/70">Cliente:</span> {a.client_name}</p>
+              <p><span className="text-white/70">Atiende:</span> {a.workers?.name ?? "Sin asignar"}</p>
+              {a.client_email && <p><span className="text-white/70">Correo:</span> {a.client_email}</p>}
+              {a.client_phone && <p><span className="text-white/70">Teléfono:</span> {a.client_phone}</p>}
+              {a.services?.price && <p><span className="text-white/70">Precio:</span> ${Number(a.services.price).toLocaleString("es-CO")}</p>}
+            </div>
+            {a.notes && <p className="text-muted text-xs mt-2 italic">"{a.notes}"</p>}
           </div>
         ))}
       </div>
@@ -60,11 +78,16 @@ export default async function KpisPage() {
   );
 }
 
-function Kpi({ label, value }: { label: string; value: string }) {
+function Kpi({ icon, label, value, highlight }: { icon: string; label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="card p-4">
-      <p className="text-muted text-xs">{label}</p>
-      <p className="font-display text-2xl font-semibold text-accent mt-1">{value}</p>
+    <div className={`card p-4 ${highlight ? "card-glow" : ""}`}>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-lg">{icon}</span>
+        <p className="text-muted text-xs">{label}</p>
+      </div>
+      <p className="font-display text-2xl font-semibold bg-gradient-to-r from-accentSoft to-cyan bg-clip-text text-transparent">
+        {value}
+      </p>
     </div>
   );
 }

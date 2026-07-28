@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { slugify } from "@/lib/slug";
 
 export default function OnboardingForm({ business, hours, dias }: { business: any; hours: any[]; dias: string[] }) {
   const [form, setForm] = useState({
@@ -13,17 +14,42 @@ export default function OnboardingForm({ business, hours, dias }: { business: an
     phone: business.phone || "",
     email: business.email || "",
   });
+  const [slug, setSlug] = useState(business.slug || "");
   const [dayHours, setDayHours] = useState(hours);
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
+  const [slugError, setSlugError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const router = useRouter();
+
+  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/${slug}` : `/${slug}`;
+
+  const fieldsToCheck = [form.name, form.niche, form.description, form.address, form.phone];
+  const completion = Math.round((fieldsToCheck.filter(Boolean).length / fieldsToCheck.length) * 100);
 
   async function save() {
     setSaving(true);
     setSavedMsg(null);
+    setSlugError(null);
     const supabase = createClient();
+    const cleanSlug = slugify(slug) || business.slug;
 
-    await supabase.from("businesses").update(form).eq("id", business.id);
+    const { error: businessError } = await supabase
+      .from("businesses")
+      .update({ ...form, slug: cleanSlug })
+      .eq("id", business.id);
+
+    if (businessError) {
+      setSaving(false);
+      if (businessError.code === "23505") {
+        setSlugError("Ese enlace ya está en uso, prueba con otro.");
+      } else {
+        setSlugError("No se pudo guardar: " + businessError.message);
+      }
+      return;
+    }
+
+    setSlug(cleanSlug);
 
     await supabase
       .from("business_hours")
@@ -37,16 +63,56 @@ export default function OnboardingForm({ business, hours, dias }: { business: an
     router.refresh();
   }
 
+  function copyLink() {
+    navigator.clipboard.writeText(publicUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   function updateDay(weekday: number, patch: Partial<any>) {
     setDayHours((prev) => prev.map((d) => (d.weekday === weekday ? { ...d, ...patch } : d)));
   }
 
   return (
     <div className="space-y-6">
+      <div className="card p-4 flex items-center gap-4">
+        <div className="flex-1">
+          <div className="flex justify-between text-xs mb-1.5">
+            <span className="text-muted">Perfil del negocio</span>
+            <span className="font-mono text-accentSoft">{completion}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-accent2 via-accent to-cyan transition-all duration-500"
+              style={{ width: `${completion}%` }}
+            />
+          </div>
+        </div>
+        {completion === 100 && <span className="badge-verified badge-ok">Listo</span>}
+      </div>
+
+      <div className="card card-glow p-4 space-y-2">
+        <h2 className="font-display font-semibold">Tu enlace público</h2>
+        <div className="flex gap-2 items-center">
+          <span className="text-muted text-sm hidden sm:inline">{typeof window !== "undefined" ? window.location.origin : ""}/</span>
+          <input
+            className="input flex-1"
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            placeholder="mi-negocio"
+          />
+          <button className="btn-ghost text-sm whitespace-nowrap" onClick={copyLink} type="button">
+            {copied ? "¡Copiado!" : "Copiar enlace"}
+          </button>
+        </div>
+        {slugError && <p className="text-danger text-xs">{slugError}</p>}
+        <p className="text-muted text-xs">Solo letras, números y guiones. Se ajusta automáticamente al guardar.</p>
+      </div>
+
       <div className="card p-4 space-y-3">
         <h2 className="font-display font-semibold">Datos generales</h2>
         <input className="input" placeholder="Nombre del negocio" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-        <input className="input" placeholder="Nicho (ej. barbería, salón de uñas)" value={form.niche} onChange={(e) => setForm({ ...form, niche: e.target.value })} />
+        <input className="input" placeholder="Tipo de negocio (ej. barbería, spa, clínica, taller)" value={form.niche} onChange={(e) => setForm({ ...form, niche: e.target.value })} />
         <textarea className="input" placeholder="Descripción breve" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
         <input className="input" placeholder="Dirección" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
         <input className="input" placeholder="Teléfono de contacto" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />

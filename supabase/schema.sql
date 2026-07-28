@@ -165,9 +165,9 @@ create policy "owner_read_feedback" on feedback for select using (
 create or replace function public.get_business_public(p_slug text)
 returns table (
   id uuid, name text, niche text, description text, logo_url text,
-  address text, timezone text, plan_status text, demo_expires_at timestamptz
+  address text, phone text, timezone text, plan_status text, demo_expires_at timestamptz
 ) language sql security definer as $$
-  select id, name, niche, description, logo_url, address, timezone, plan_status, demo_expires_at
+  select id, name, niche, description, logo_url, address, phone, timezone, plan_status, demo_expires_at
   from businesses
   where slug = p_slug and plan_status in ('demo','active');
 $$;

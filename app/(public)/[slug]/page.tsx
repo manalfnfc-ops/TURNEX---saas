@@ -9,6 +9,7 @@ type PublicBusiness = {
   description: string | null;
   logo_url: string | null;
   address: string | null;
+  phone: string | null;
   timezone: string;
   plan_status: string;
   demo_expires_at: string | null;

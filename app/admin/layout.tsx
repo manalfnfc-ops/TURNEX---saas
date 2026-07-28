@@ -25,7 +25,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="min-h-screen flex items-center justify-center px-4">
           <div className="card p-8 max-w-sm text-center">
             <p className="eyebrow mb-3">Cuenta desactivada</p>
-            <h1 className="font-display text-2xl font-semibold text-paper mb-3">
+            <h1 className="font-display text-2xl font-semibold text-white mb-3">
               Tu membresía venció
             </h1>
             <p className="text-muted text-sm mb-6">
@@ -50,16 +50,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen flex">
-      <aside className="w-56 border-r border-line p-5 hidden md:flex flex-col justify-between">
+      <aside className="w-56 border-r border-line p-5 hidden md:flex flex-col justify-between glass !rounded-none !border-y-0 !border-l-0">
         <div>
           <p className="eyebrow mb-1">MANALF</p>
-          <p className="font-display font-semibold text-xl mb-8 text-paper">Turnex</p>
+          <p className="font-display font-semibold text-xl mb-8 bg-gradient-to-r from-accentSoft to-cyan bg-clip-text text-transparent">TURNEX</p>
           <nav className="space-y-1 text-sm">
-            <Link href="/admin/citas" className="block px-3 py-2 rounded-lg hover:bg-surface2 transition">Citas</Link>
-            <Link href="/admin/servicios" className="block px-3 py-2 rounded-lg hover:bg-surface2 transition">Servicios y equipo</Link>
-            <Link href="/admin/onboarding" className="block px-3 py-2 rounded-lg hover:bg-surface2 transition">Mi negocio</Link>
-            <Link href="/admin/kpis" className="block px-3 py-2 rounded-lg hover:bg-surface2 transition">KPIs</Link>
-            {isSuper && <Link href="/super-admin" className="block px-3 py-2 rounded-lg hover:bg-surface2 transition text-accent">Super Admin</Link>}
+            <Link href="/admin/citas" className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 transition">📋 Citas</Link>
+            <Link href="/admin/servicios" className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 transition">🛠️ Servicios y equipo</Link>
+            <Link href="/admin/onboarding" className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 transition">🏠 Mi negocio</Link>
+            <Link href="/admin/kpis" className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 transition">📊 KPIs</Link>
+            {isSuper && <Link href="/super-admin" className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 transition text-accent">⚡ Super Admin</Link>}
           </nav>
         </div>
         <LogoutButton />

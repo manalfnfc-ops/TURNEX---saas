@@ -1,5 +1,7 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import OnboardingForm from "./form";
+import { PAYWALL_ENABLED } from "@/lib/config";
+import PaywallScreen from "../paywall-screen";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +42,12 @@ export default async function OnboardingPage() {
     business = created;
   }
 
+  // Muro de pago: listo en el código, pero apagado (PAYWALL_ENABLED=false)
+  // para que puedas usar y probar el sistema sin pagar todavía.
+  if (PAYWALL_ENABLED && business.plan_status !== "active") {
+    return <PaywallScreen businessId={business.id} />;
+  }
+
   const { data: hours } = await supabase
     .from("business_hours")
     .select("*")
@@ -54,9 +62,7 @@ export default async function OnboardingPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="font-display text-2xl font-semibold mb-1">Mi negocio</h1>
-      <p className="text-muted text-sm mb-6">
-        Enlace público: <span className="text-accent">turnex.app/{business!.slug}</span>
-      </p>
+      <p className="text-muted text-sm mb-6">Configura tu negocio y tu enlace público para compartir.</p>
       <OnboardingForm business={business} hours={existingHours} dias={DIAS} />
     </div>
   );
