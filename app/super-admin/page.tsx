@@ -21,7 +21,6 @@ export default async function SuperAdminPage() {
 
   const stats = {
     total: businesses?.length ?? 0,
-    pendientes: businesses?.filter((b) => b.plan_status === "pending").length ?? 0,
     activos: businesses?.filter((b) => b.plan_status === "active").length ?? 0,
     demo: businesses?.filter((b) => b.plan_status === "demo").length ?? 0,
     inactivos: businesses?.filter((b) => b.plan_status === "inactive").length ?? 0,
