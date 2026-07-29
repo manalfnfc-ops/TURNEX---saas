@@ -17,12 +17,34 @@ export default async function KpisPage() {
 
   const { data: appointments } = await supabase
     .from("appointments")
-    .select("id, starts_at, status, client_name, client_email, client_phone, notes, services(name, price), workers(name)")
+    .select("id, starts_at, status, paid_amount, client_name, client_email, client_phone, notes, services(name, price), workers(name)")
     .eq("business_id", business!.id);
 
   const list = appointments ?? [];
   const accepted = list.filter((a: any) => a.status === "accepted");
-  const totalIngresos = accepted.reduce((sum: number, a: any) => sum + Number(a.services?.price ?? 0), 0);
+  const completed = list.filter((a: any) => a.status === "completed");
+  const rejected = list.filter((a: any) => a.status === "rejected");
+
+  const ingresosReales = completed.reduce((sum: number, a: any) => sum + Number(a.paid_amount ?? 0), 0);
+  const ticketPromedio = completed.length ? ingresosReales / completed.length : 0;
+
+  const now = new Date();
+  const ingresosMes = completed
+    .filter((a: any) => {
+      const d = new Date(a.starts_at);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    })
+    .reduce((sum: number, a: any) => sum + Number(a.paid_amount ?? 0), 0);
+
+  const totalDecididas = accepted.length + completed.length + rejected.length;
+  const tasaAceptacion = totalDecididas ? Math.round(((accepted.length + completed.length) / totalDecididas) * 100) : 0;
+
+  const porServicio: Record<string, number> = {};
+  for (const a of list) {
+    const nombre = (a as any).services?.name;
+    if (nombre) porServicio[nombre] = (porServicio[nombre] ?? 0) + 1;
+  }
+  const servicioTop = Object.entries(porServicio).sort((a, b) => b[1] - a[1])[0];
 
   const porDia: Record<string, number> = {};
   for (const a of list) {
@@ -41,9 +63,13 @@ export default async function KpisPage() {
       <p className="eyebrow mb-1">Panel de resultados</p>
       <h1 className="font-display text-2xl font-semibold mb-6">KPIs del negocio</h1>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
-        <Kpi icon="✅" label="Citas atendidas" value={accepted.length.toString()} highlight />
-        <Kpi icon="💰" label="Ingresos estimados" value={`$${totalIngresos.toLocaleString("es-CO")}`} highlight />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <Kpi icon="✅" label="Citas completadas" value={completed.length.toString()} highlight />
+        <Kpi icon="💰" label="Ingresos reales" value={`$${ingresosReales.toLocaleString("es-CO")}`} highlight />
+        <Kpi icon="📆" label="Ingresos este mes" value={`$${ingresosMes.toLocaleString("es-CO")}`} highlight />
+        <Kpi icon="🎯" label="Ticket promedio" value={`$${Math.round(ticketPromedio).toLocaleString("es-CO")}`} />
+        <Kpi icon="📈" label="Tasa de aceptación" value={`${tasaAceptacion}%`} />
+        <Kpi icon="⭐" label="Servicio más pedido" value={servicioTop ? servicioTop[0] : "—"} />
         <Kpi icon="📅" label="Día más agendado" value={diaTop ? diaTop[0] : "—"} />
         <Kpi icon="📨" label="Total solicitudes" value={list.length.toString()} />
         <Kpi icon="⏳" label="Pendientes" value={list.filter((a: any) => a.status === "pending").length.toString()} />

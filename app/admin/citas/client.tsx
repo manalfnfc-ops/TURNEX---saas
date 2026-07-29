@@ -9,18 +9,21 @@ const ESTADO_LABEL: Record<string, string> = {
   rejected: "Rechazada",
   postponed: "Pospuesta",
   cancelled: "Cancelada",
+  completed: "Completada",
 };
 
 const ESTADO_COLOR: Record<string, string> = {
   pending: "text-warn",
-  accepted: "text-ok",
+  accepted: "text-cyan",
   rejected: "text-danger",
   postponed: "text-accent2",
   cancelled: "text-muted",
+  completed: "text-ok",
 };
 
 export default function CitasClient({ businessId, initialAppointments, workers }: any) {
   const [appointments, setAppointments] = useState(initialAppointments);
+  const [amountDrafts, setAmountDrafts] = useState<Record<string, string>>({});
   const supabase = createClient();
 
   async function updateStatus(id: string, status: string) {
@@ -31,6 +34,16 @@ export default function CitasClient({ businessId, initialAppointments, workers }
   async function assignWorker(id: string, workerId: string) {
     await supabase.from("appointments").update({ worker_id: workerId || null }).eq("id", id);
     setAppointments((prev: any) => prev.map((a: any) => (a.id === id ? { ...a, worker_id: workerId } : a)));
+  }
+
+  async function confirmPaidAmount(a: any) {
+    const raw = amountDrafts[a.id] ?? a.paid_amount ?? a.services?.price ?? 0;
+    const amount = Number(raw);
+    if (isNaN(amount) || amount < 0) return;
+    await supabase.from("appointments").update({ status: "completed", paid_amount: amount }).eq("id", a.id);
+    setAppointments((prev: any) =>
+      prev.map((x: any) => (x.id === a.id ? { ...x, status: "completed", paid_amount: amount } : x))
+    );
   }
 
   async function sendReminder(a: any) {
@@ -52,7 +65,7 @@ export default function CitasClient({ businessId, initialAppointments, workers }
       <div className="space-y-3">
         {appointments.length === 0 && <p className="text-muted text-sm">Aún no hay solicitudes de cita.</p>}
         {appointments.map((a: any) => (
-          <div key={a.id} className="card p-4 flex flex-wrap justify-between gap-3 items-center">
+          <div key={a.id} className="card p-4 flex flex-wrap justify-between gap-3 items-start">
             <div>
               <p className="font-medium">{a.client_name} — {a.services?.name}</p>
               <p className="text-muted text-sm">{new Date(a.starts_at).toLocaleString("es-CO")}</p>
@@ -86,6 +99,24 @@ export default function CitasClient({ businessId, initialAppointments, workers }
                 <button className="btn-ghost text-sm" onClick={() => sendReminder(a)}>Enviar recordatorio</button>
               )}
             </div>
+
+            {(a.status === "accepted" || a.status === "completed") && (
+              <div className="w-full border-t border-line mt-2 pt-3 flex flex-wrap items-center gap-2">
+                <span className="text-muted text-xs">
+                  {a.status === "completed" ? "Valor realmente pagado:" : "Confirmar cita y valor cobrado:"}
+                </span>
+                <input
+                  type="number"
+                  className="input w-28 text-sm"
+                  placeholder={String(a.services?.price ?? 0)}
+                  defaultValue={a.paid_amount ?? a.services?.price ?? ""}
+                  onChange={(e) => setAmountDrafts((d) => ({ ...d, [a.id]: e.target.value }))}
+                />
+                <button className="btn-primary text-sm" onClick={() => confirmPaidAmount(a)}>
+                  {a.status === "completed" ? "Corregir valor" : "Confirmar cita completada"}
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>

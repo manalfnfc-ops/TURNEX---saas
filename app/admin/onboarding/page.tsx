@@ -42,10 +42,16 @@ export default async function OnboardingPage() {
     business = created;
   }
 
-  // Muro de pago: listo en el código, pero apagado (PAYWALL_ENABLED=false)
-  // para que puedas usar y probar el sistema sin pagar todavía.
-  if (PAYWALL_ENABLED && business.plan_status !== "active") {
-    return <PaywallScreen businessId={business.id} />;
+  // Los Super Admin (MANALF) nunca ven el muro de pago — necesitan poder
+  // probar el sistema libremente.
+  const { data: isSuper } = await supabase
+    .from("super_admins")
+    .select("user_id")
+    .eq("user_id", userData.user!.id)
+    .maybeSingle();
+
+  if (PAYWALL_ENABLED && !isSuper && !["active", "demo"].includes(business.plan_status)) {
+    return <PaywallScreen businessName={business.name} />;
   }
 
   const { data: hours } = await supabase
