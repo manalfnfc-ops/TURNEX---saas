@@ -1,6 +1,12 @@
 // Motor de calendario: genera los horarios disponibles de un día,
 // según el horario de atención del negocio y la duración del servicio elegido.
 // No depende de trabajadores — es un solo calendario general por negocio.
+//
+// IMPORTANTE: el servidor (Vercel) corre en UTC, pero los horarios del
+// negocio están en hora de Colombia (UTC-5, sin horario de verano). Por eso
+// las horas se construyen con el offset "-05:00" explícito, en vez de dejar
+// que JavaScript use la zona horaria del servidor — si no, se corre 5 horas.
+const COLOMBIA_OFFSET = "-05:00";
 
 export type BusinessHour = {
   weekday: number;
@@ -18,19 +24,16 @@ export function generateDaySlots(
   durationMinutes: number,
   stepMinutes = 15
 ): { time: string; available: boolean }[] {
-  const date = new Date(dateISO + "T00:00:00");
-  const weekday = date.getDay();
+  // Día de la semana calculado en UTC puro (matemática de calendario, no
+  // depende de ninguna zona horaria del servidor).
+  const [y, m, d] = dateISO.split("-").map(Number);
+  const weekday = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
   const dayHours = hours.find((h) => h.weekday === weekday);
 
   if (!dayHours || dayHours.is_closed) return [];
 
-  const [openH, openM] = dayHours.open_time.split(":").map(Number);
-  const [closeH, closeM] = dayHours.close_time.split(":").map(Number);
-
-  const open = new Date(date);
-  open.setHours(openH, openM, 0, 0);
-  const close = new Date(date);
-  close.setHours(closeH, closeM, 0, 0);
+  const open = new Date(`${dateISO}T${dayHours.open_time}${COLOMBIA_OFFSET}`);
+  const close = new Date(`${dateISO}T${dayHours.close_time}${COLOMBIA_OFFSET}`);
 
   const busyRanges = busySlots.map((b) => ({
     start: new Date(b.starts_at).getTime(),
@@ -38,22 +41,22 @@ export function generateDaySlots(
   }));
 
   const slots: { time: string; available: boolean }[] = [];
-  const now = new Date();
+  const now = Date.now();
 
-  let cursor = new Date(open);
-  while (cursor.getTime() + durationMinutes * 60000 <= close.getTime()) {
-    const slotStart = cursor.getTime();
+  let cursor = open.getTime();
+  while (cursor + durationMinutes * 60000 <= close.getTime()) {
+    const slotStart = cursor;
     const slotEnd = slotStart + durationMinutes * 60000;
 
     const overlaps = busyRanges.some((b) => slotStart < b.end && slotEnd > b.start);
-    const isPast = slotStart < now.getTime();
+    const isPast = slotStart < now;
 
     slots.push({
-      time: cursor.toISOString(),
+      time: new Date(slotStart).toISOString(),
       available: !overlaps && !isPast,
     });
 
-    cursor = new Date(cursor.getTime() + stepMinutes * 60000);
+    cursor += stepMinutes * 60000;
   }
 
   return slots;

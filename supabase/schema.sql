@@ -21,7 +21,7 @@ create table if not exists businesses (
   phone text,
   email text,
   timezone text not null default 'America/Bogota',
-  plan_status text not null default 'demo' check (plan_status in ('demo','active','inactive')),
+  plan_status text not null default 'pending' check (plan_status in ('pending','demo','active','inactive')),
   demo_started_at timestamptz default now(),
   demo_expires_at timestamptz default (now() + interval '30 days'),
   plan_expires_at timestamptz,             -- para plan mensual/anual pagado
@@ -83,7 +83,8 @@ create table if not exists appointments (
   starts_at timestamptz not null,
   ends_at timestamptz not null,
   during tstzrange generated always as (tstzrange(starts_at, ends_at, '[)')) stored,
-  status text not null default 'pending' check (status in ('pending','accepted','rejected','postponed','cancelled')),
+  status text not null default 'pending' check (status in ('pending','accepted','rejected','postponed','cancelled','completed')),
+  paid_amount numeric(12,2),
   created_at timestamptz default now(),
   constraint valid_range check (ends_at > starts_at),
   -- Evita que dos citas ACEPTADAS o PENDIENTES se solapen en el mismo negocio

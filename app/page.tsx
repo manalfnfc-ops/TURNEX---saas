@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeroCTA from "./hero-cta";
 
 const BENEFICIOS = [
   { titulo: "Sin doble reserva", texto: "Bloqueado a nivel de base de datos: dos clientes nunca pueden tomar el mismo cupo." },
@@ -9,18 +10,21 @@ const BENEFICIOS = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen px-6 py-14 md:py-20 overflow-hidden">
+    <main className="min-h-screen px-6 py-14 md:py-20 overflow-hidden relative">
+      <div className="glow-orb w-[500px] h-[500px] bg-accent -top-40 -left-32 fixed animate-float" />
+      <div className="glow-orb w-[420px] h-[420px] bg-cyan -bottom-32 -right-20 fixed animate-float-slow" />
+
       <div className="max-w-5xl mx-auto relative">
         <div className="flex items-center justify-between mb-16 md:mb-24">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-accent shadow-glow" />
+            <span className="w-2 h-2 rounded-full bg-accent shadow-glow animate-pulse-soft" />
             <span className="eyebrow">TURNEX · By MANALF</span>
           </div>
           <Link href="/admin/login" className="btn-ghost text-sm">Entrar al panel</Link>
         </div>
 
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <h1 className="font-display text-4xl md:text-6xl font-bold leading-[1.05] gradient-text">
+          <h1 className="font-display text-4xl md:text-6xl font-bold leading-[1.05] gradient-text animate-shine">
             Agenda de citas para cualquier negocio con turnos
           </h1>
           <p className="text-muted mt-6 text-base md:text-lg leading-relaxed">
@@ -28,13 +32,13 @@ export default function Home() {
             cada solicitud. Barbería, spa, consultorio, taller o estudio — Turnex se adapta.
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-9">
-            <Link href="/admin/login" className="btn-primary">Crear mi negocio</Link>
+            <HeroCTA />
             <Link href="#beneficios" className="btn-ghost">Ver beneficios</Link>
           </div>
         </div>
 
-        {/* Vista previa del ticket, como pieza visual */}
-        <div className="ticket-wrap max-w-xs mx-auto mb-20 -rotate-2">
+        {/* Vista previa del ticket, con leve tilt 3D animado */}
+        <div className="ticket-wrap max-w-xs mx-auto mb-20 animate-tilt-3d" style={{ perspective: "800px" }}>
           <div className="ticket p-5">
             <p className="eyebrow">Comprobante de cita</p>
             <h3 className="font-display text-lg font-semibold mt-1">Estudio Aurora</h3>
@@ -58,9 +62,9 @@ export default function Home() {
           ))}
         </section>
 
-        <footer className="mt-24 pt-8 border-t border-line flex justify-between text-xs text-muted">
-          <span>MANALF © {new Date().getFullYear()}</span>
-          <span>TURNEX — agendamiento sin fricción</span>
+        <footer className="mt-24 pt-8 border-t border-line flex justify-between items-center text-xs text-muted">
+          <span>© {new Date().getFullYear()}</span>
+          <span className="font-display text-base md:text-lg font-semibold gradient-text">Desarrollado By MANALF</span>
         </footer>
       </div>
     </main>

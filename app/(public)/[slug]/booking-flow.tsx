@@ -256,6 +256,7 @@ export default function BookingFlow({
                 <span className="text-[10px] font-mono text-accentSoft tracking-widest">TURNEX</span>
               </div>
               <div className="text-sm text-muted mt-1 space-y-0.5">
+                {business.niche && <p className="text-accentSoft text-xs uppercase tracking-wide">{business.niche}</p>}
                 {business.address && <p>{business.address}</p>}
                 {business.phone && <p>{business.phone}</p>}
               </div>

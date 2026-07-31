@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { ACTIVATION_WHATSAPP_LINK } from "@/lib/config";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -39,6 +40,12 @@ export default function LoginPage() {
           {loading ? "Ingresando…" : "Ingresar"}
         </button>
       </form>
+      <p className="text-muted text-xs text-center mt-6">
+        ¿Aún no tienes cuenta?{" "}
+        <a href={ACTIVATION_WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="text-accentSoft hover:underline">
+          Solicítala por WhatsApp
+        </a>
+      </p>
     </main>
   );
 }

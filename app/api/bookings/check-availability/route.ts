@@ -11,8 +11,10 @@ export async function POST(req: Request) {
 
   const supabase = createServerSupabase();
 
-  const dayStart = new Date(date + "T00:00:00").toISOString();
-  const dayEnd = new Date(date + "T23:59:59").toISOString();
+  // Mismo ajuste que en availability.ts: el día "de Colombia" no es el día
+  // UTC del servidor, así que el rango se calcula con el offset explícito.
+  const dayStart = new Date(`${date}T00:00:00-05:00`).toISOString();
+  const dayEnd = new Date(`${date}T23:59:59-05:00`).toISOString();
 
   const [{ data: hours, error: hoursErr }, { data: busy, error: busyErr }] = await Promise.all([
     supabase.rpc("get_hours_public", { p_business_id: businessId }),
