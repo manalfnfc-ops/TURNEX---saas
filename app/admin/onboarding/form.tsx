@@ -13,12 +13,8 @@ export default function OnboardingForm({ business, hours, dias }: { business: an
     address: business.address || "",
     phone: business.phone || "",
     email: business.email || "",
-    instagram: business.instagram || "",
-    website: business.website || "",
-    notes: business.notes || "",
   });
   const [slug, setSlug] = useState(business.slug || "");
-  const [slugTouched, setSlugTouched] = useState(false);
   const [dayHours, setDayHours] = useState(hours);
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
@@ -30,12 +26,6 @@ export default function OnboardingForm({ business, hours, dias }: { business: an
 
   const fieldsToCheck = [form.name, form.niche, form.description, form.address, form.phone];
   const completion = Math.round((fieldsToCheck.filter(Boolean).length / fieldsToCheck.length) * 100);
-
-  function handleNameChange(value: string) {
-    setForm({ ...form, name: value });
-    // Mientras el dueño no edite el enlace a mano, se genera solo desde el nombre real.
-    if (!slugTouched) setSlug(slugify(value));
-  }
 
   async function save() {
     setSaving(true);
@@ -102,16 +92,13 @@ export default function OnboardingForm({ business, hours, dias }: { business: an
       </div>
 
       <div className="card card-glow p-4 space-y-2">
-        <h2 className="font-display font-semibold text-white">Tu enlace público</h2>
+        <h2 className="font-display font-semibold">Tu enlace público</h2>
         <div className="flex gap-2 items-center">
           <span className="text-muted text-sm hidden sm:inline">{typeof window !== "undefined" ? window.location.origin : ""}/</span>
           <input
             className="input flex-1"
             value={slug}
-            onChange={(e) => {
-              setSlug(e.target.value);
-              setSlugTouched(true);
-            }}
+            onChange={(e) => setSlug(e.target.value)}
             placeholder="mi-negocio"
           />
           <button className="btn-ghost text-sm whitespace-nowrap" onClick={copyLink} type="button">
@@ -123,8 +110,8 @@ export default function OnboardingForm({ business, hours, dias }: { business: an
       </div>
 
       <div className="card p-4 space-y-3">
-        <h2 className="font-display font-semibold text-white">Datos generales</h2>
-        <input className="input" placeholder="Nombre del negocio" value={form.name} onChange={(e) => handleNameChange(e.target.value)} />
+        <h2 className="font-display font-semibold">Datos generales</h2>
+        <input className="input" placeholder="Nombre del negocio" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         <input className="input" placeholder="Tipo de negocio (ej. barbería, spa, clínica, taller)" value={form.niche} onChange={(e) => setForm({ ...form, niche: e.target.value })} />
         <textarea className="input" placeholder="Descripción breve" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
         <input className="input" placeholder="Dirección" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
@@ -132,15 +119,8 @@ export default function OnboardingForm({ business, hours, dias }: { business: an
         <input className="input" placeholder="Correo de contacto" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
       </div>
 
-      <div className="card p-4 space-y-3">
-        <h2 className="font-display font-semibold text-white">Presencia digital <span className="text-muted text-xs font-body font-normal">(opcional)</span></h2>
-        <input className="input" placeholder="Instagram (ej. @minegocio)" value={form.instagram} onChange={(e) => setForm({ ...form, instagram: e.target.value })} />
-        <input className="input" placeholder="Sitio web" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} />
-        <textarea className="input" placeholder="Notas internas (solo las ves tú, no el cliente)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-      </div>
-
       <div className="card p-4 space-y-2">
-        <h2 className="font-display font-semibold mb-2 text-white">Horario de atención</h2>
+        <h2 className="font-display font-semibold mb-2">Horario de atención</h2>
         {dayHours.map((h) => (
           <div key={h.weekday} className="flex items-center gap-3 text-sm">
             <span className="w-24 text-muted">{dias[h.weekday]}</span>
