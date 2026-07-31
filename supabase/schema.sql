@@ -21,6 +21,9 @@ create table if not exists businesses (
   phone text,
   email text,
   timezone text not null default 'America/Bogota',
+  instagram text,
+  website text,
+  notes text,
   plan_status text not null default 'pending' check (plan_status in ('pending','demo','active','inactive')),
   demo_started_at timestamptz default now(),
   demo_expires_at timestamptz default (now() + interval '30 days'),
@@ -51,6 +54,7 @@ create table if not exists services (
   description text,
   price numeric(12,2) not null default 0,
   duration_minutes int not null check (duration_minutes > 0),
+  allows_concurrent boolean not null default false, -- true = se puede agendar a alguien más al mismo tiempo (ej. clase grupal)
   active boolean default true,
   created_at timestamptz default now()
 );
@@ -85,13 +89,15 @@ create table if not exists appointments (
   during tstzrange generated always as (tstzrange(starts_at, ends_at, '[)')) stored,
   status text not null default 'pending' check (status in ('pending','accepted','rejected','postponed','cancelled','completed')),
   paid_amount numeric(12,2),
+  blocks_calendar boolean not null default true, -- false = servicio concurrente, no bloquea el horario para otros
   created_at timestamptz default now(),
   constraint valid_range check (ends_at > starts_at),
   -- Evita que dos citas ACEPTADAS o PENDIENTES se solapen en el mismo negocio
+  -- (solo entre citas que sí bloquean el calendario)
   exclude using gist (
     business_id with =,
     during with &&
-  ) where (status in ('pending','accepted'))
+  ) where (status in ('pending','accepted') and blocks_calendar)
 );
 
 create index if not exists idx_appointments_business on appointments(business_id, starts_at);
@@ -198,11 +204,13 @@ returns table (starts_at timestamptz, ends_at timestamptz) language sql security
   select starts_at, ends_at from appointments
   where business_id = p_business_id
     and status in ('pending','accepted')
+    and blocks_calendar
     and starts_at >= p_from and starts_at < p_to;
 $$;
 
 -- Crear una cita pública. Si hay solape, el EXCLUDE constraint de la tabla
 -- lanza un error 23P01 que la API captura y convierte en "horario no disponible".
+-- blocks_calendar se decide solo, según si el servicio permite concurrencia.
 create or replace function public.create_public_appointment(
   p_business_id uuid,
   p_service_id uuid,
@@ -216,13 +224,17 @@ create or replace function public.create_public_appointment(
 ) returns appointments language plpgsql security definer as $$
 declare
   new_row appointments;
+  v_blocks boolean;
 begin
+  select not coalesce(allows_concurrent, false) into v_blocks from services where id = p_service_id;
+
   insert into appointments (
     business_id, service_id, worker_id, client_name, client_email,
-    client_phone, notes, starts_at, ends_at
+    client_phone, notes, starts_at, ends_at, blocks_calendar
   ) values (
     p_business_id, p_service_id, p_worker_id, p_client_name, p_client_email,
-    p_client_phone, p_notes, p_starts_at, p_starts_at + (p_duration_minutes || ' minutes')::interval
+    p_client_phone, p_notes, p_starts_at, p_starts_at + (p_duration_minutes || ' minutes')::interval,
+    coalesce(v_blocks, true)
   )
   returning * into new_row;
 
