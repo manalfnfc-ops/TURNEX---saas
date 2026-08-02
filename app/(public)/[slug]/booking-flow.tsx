@@ -5,7 +5,7 @@ import { generateDaySlots, type BusinessHour, type BusySlot } from "@/lib/availa
 
 type Service = { id: string; name: string; description: string | null; price: number; duration_minutes: number };
 type Worker = { id: string; name: string };
-type Business = { id: string; name: string; niche: string | null; description: string | null; address: string | null; phone: string | null; timezone: string };
+type Business = { id: string; name: string; niche: string | null; description: string | null; address: string | null; phone: string | null; instagram: string | null; website: string | null; timezone: string };
 
 export default function BookingFlow({
   business,
@@ -99,11 +99,23 @@ export default function BookingFlow({
   }
 
   return (
-    <main className={`mx-auto px-4 py-10 transition-all ${step === 3 ? "max-w-3xl" : "max-w-2xl"}`}>
-      <header className="mb-8">
+    <main className={`mx-auto px-4 py-10 transition-all relative overflow-hidden ${step === 3 ? "max-w-4xl" : "max-w-2xl"}`}>
+      <div className="glow-orb w-[380px] h-[380px] bg-accent -top-32 -right-24 fixed animate-float" />
+      <div className="glow-orb w-[320px] h-[320px] bg-cyan -bottom-24 -left-24 fixed animate-float-slow" />
+
+      <header className="glass-strong p-6 mb-8 relative">
         <p className="eyebrow">{business.niche || "Agenda de citas"}</p>
         <h1 className="font-display text-3xl md:text-4xl font-semibold mt-1 text-white">{business.name}</h1>
-        {business.description && <p className="text-muted mt-2 text-sm">{business.description}</p>}
+        {business.description && <p className="text-muted mt-2 text-sm max-w-lg">{business.description}</p>}
+        {(business.address || business.phone || business.instagram || business.website) && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {business.address && <span className="badge-verified badge-pending !text-muted !border-line">📍 {business.address}</span>}
+            {business.phone && <span className="badge-verified badge-pending !text-muted !border-line">📞 {business.phone}</span>}
+            {business.instagram && <span className="badge-verified badge-pending !text-accentSoft !border-accentSoft/30">📷 {business.instagram}</span>}
+            {business.website && <span className="badge-verified badge-pending !text-cyan !border-cyan/30">🔗 {business.website}</span>}
+          </div>
+        )}
+        <p className="eyebrow mt-4 !text-[10px] opacity-60">Powered by TURNEX · By MANALF</p>
       </header>
 
       <StepIndicator step={step} />
@@ -113,13 +125,13 @@ export default function BookingFlow({
           <h2 className="font-display text-lg font-semibold">Elige un servicio</h2>
           {services.length === 0 && <p className="text-muted text-sm">Este negocio aún no tiene servicios publicados.</p>}
           {services.map((s) => (
-            <button key={s.id} onClick={() => pickService(s)} className="card w-full text-left p-4 flex justify-between items-center hover:border-accent transition">
+            <button key={s.id} onClick={() => pickService(s)} className="card w-full text-left p-4 flex justify-between items-center hover:border-accent hover:shadow-glow transition">
               <div>
-                <p className="font-medium">{s.name}</p>
+                <p className="font-medium text-white">{s.name}</p>
                 {s.description && <p className="text-muted text-sm mt-0.5">{s.description}</p>}
-                <p className="text-muted text-xs mt-1">{s.duration_minutes} min</p>
+                <p className="text-muted text-xs mt-1.5 ticket-code">{s.duration_minutes} min</p>
               </div>
-              <p className="font-display text-accent font-semibold">${s.price.toLocaleString("es-CO")}</p>
+              <p className="font-display text-accentSoft font-semibold text-lg">${s.price.toLocaleString("es-CO")}</p>
             </button>
           ))}
         </section>
@@ -148,11 +160,11 @@ export default function BookingFlow({
 
       {step === 3 && service && (
         <section className="space-y-5 mt-6">
-          <h2 className="font-display text-lg font-semibold">Elige día y hora</h2>
+          <h2 className="font-display text-xl font-semibold text-white">Elige día y hora</h2>
 
-          <div className="card p-4 md:p-6">
+          <div className="glass-strong p-5 md:p-7">
             {/* Tira de próximos días — atajo visual, misma lógica de disponibilidad de siempre */}
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+            <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-1 px-1">
               {nextDays(14).map((d) => {
                 const isSelected = d.iso === dateStr;
                 return (
@@ -163,10 +175,10 @@ export default function BookingFlow({
                       setSelectedSlot(null);
                       loadSlots(d.iso, service);
                     }}
-                    className={`flex flex-col items-center min-w-[56px] py-2.5 rounded-xl border transition ${
+                    className={`flex flex-col items-center min-w-[62px] py-3 rounded-xl border transition ${
                       isSelected
-                        ? "bg-gradient-to-b from-accent to-accent2 border-transparent text-white shadow-glow"
-                        : "border-line hover:border-accent/50"
+                        ? "bg-gradient-to-b from-accent to-accent2 border-transparent text-white shadow-glow scale-105"
+                        : "border-line hover:border-accent/50 hover:bg-white/5"
                     }`}
                   >
                     <span className="text-[0.65rem] uppercase text-muted font-mono">{d.dayLabel}</span>
@@ -192,13 +204,14 @@ export default function BookingFlow({
 
             <div className="border-t border-line my-5" />
 
+            <p className="text-muted text-xs mb-3 uppercase tracking-wide font-mono">Horarios disponibles</p>
             {loadingSlots && <p className="text-muted text-sm">Cargando horarios disponibles…</p>}
             {error && <p className="text-danger text-sm">{error}</p>}
             {!loadingSlots && slots.length === 0 && !error && (
               <p className="text-muted text-sm">No hay horarios disponibles este día. Prueba otra fecha.</p>
             )}
 
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {slots.map((s) => {
                 const label = new Date(s.time).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", hour12: true });
                 return (
@@ -206,7 +219,7 @@ export default function BookingFlow({
                     key={s.time}
                     disabled={!s.available}
                     onClick={() => setSelectedSlot(s.time)}
-                    className={`slot-btn ${selectedSlot === s.time ? "selected" : ""}`}
+                    className={`slot-btn !py-4 !text-base ${selectedSlot === s.time ? "selected" : ""}`}
                   >
                     {label}
                   </button>

@@ -74,3 +74,15 @@ $$;
 alter table businesses add column if not exists instagram text;
 alter table businesses add column if not exists website text;
 alter table businesses add column if not exists notes text;
+
+-- 7) El perfil público ahora también muestra Instagram y sitio web (informativos).
+--    "notes" queda privado a propósito: solo lo ve el dueño del negocio.
+create or replace function public.get_business_public(p_slug text)
+returns table (
+  id uuid, name text, niche text, description text, logo_url text,
+  address text, phone text, instagram text, website text, timezone text, plan_status text, demo_expires_at timestamptz
+) language sql security definer as $$
+  select id, name, niche, description, logo_url, address, phone, instagram, website, timezone, plan_status, demo_expires_at
+  from businesses
+  where slug = p_slug and plan_status in ('demo','active');
+$$;

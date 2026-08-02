@@ -10,6 +10,8 @@ type PublicBusiness = {
   logo_url: string | null;
   address: string | null;
   phone: string | null;
+  instagram: string | null;
+  website: string | null;
   timezone: string;
   plan_status: string;
   demo_expires_at: string | null;
